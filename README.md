@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vellum
 
-## Getting Started
+A social library: rate the books you love, write reviews, browse the site's
+top-rated canon, add friends, and follow their reading lives. The landing page
+is a draggable 3D shelf of your ten highest-rated books.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, Turbopack, server actions) + TypeScript
+- **Tailwind CSS v4** — warm-dark editorial theme, Instrument Serif + Inter
+- **GSAP 3.15** — Draggable + InertiaPlugin drive the hero shelf; entrance
+  timelines animate the wordmark and books
+- **SQLite** (better-sqlite3) + **Drizzle ORM** — zero-config local persistence
+- Hand-rolled cookie-session auth (bcryptjs + sessions table)
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run setup   # downloads covers from Open Library, pushes schema, seeds demo data
+npm run dev     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Demo login: **charlie / books123** (all 8 demo users share the password).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script         | What it does                                            |
+| -------------- | ------------------------------------------------------- |
+| `npm run dev`  | dev server on :3000                                     |
+| `npm run build`| production build                                        |
+| `npm run covers` | fetch real covers → `public/covers/` (SVG fallback if offline) |
+| `npm run db:push` | create/update SQLite schema (`.data/vellum.db`)      |
+| `npm run db:seed` | reset + seed 8 users, 60 books, ratings, reviews, friendships |
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The hero shelf is pure CSS 3D (perspective + preserve-3d boxes) driven by
+  GSAP Draggable with inertia snapping; click a book to pull it forward,
+  drag/scroll/arrow-key to browse, genre pills to swap the set.
+- Top Rated uses a Bayesian weighted score `(v·R + m·C)/(v + m)` so books need
+  both love *and* readers to rank.
+- All motion respects `prefers-reduced-motion`; `?instant` skips entrance
+  animations (used by automated checks).
+- Book covers are fetched from Open Library at setup time and served locally.

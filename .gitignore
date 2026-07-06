@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.data/
+
+# downloaded cover art (regenerate with: npm run covers)
+/public/covers/
