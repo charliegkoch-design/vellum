@@ -21,7 +21,8 @@ export type ShelfBook = {
   myStars?: number | null;
 };
 
-const TRACK_ANGLE = -30; // counter-rotation for focus; mirrors .shelf-rot rotateY(30deg)
+const TRACK_ANGLE = -28; // counter-rotation for focus; mirrors .shelf-rot rotateY(28deg)
+const HOVER_PULL = 90; // how far a hovered book slides off the shelf, along its own angle
 
 export default function Shelf3D({ books }: { books: ShelfBook[] }) {
   const shelfRef = useRef<HTMLDivElement>(null);
@@ -57,6 +58,22 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
     setFocused(null);
   };
 
+  // hover: pull the book partway off the shelf
+  const hoverBook = (idx: number, on: boolean) => {
+    if (focusedRef.current === idx) return;
+    if (draggableRef.current?.isDragging) return;
+    const slot = trackRef.current?.children[idx];
+    if (!slot) return;
+    const d = skipMotion() ? 0 : 1;
+    gsap.to(slot, {
+      z: on ? HOVER_PULL : 0,
+      y: on ? -10 : 0,
+      duration: 0.4 * d,
+      ease: on ? "power2.out" : "power2.inOut",
+      overwrite: "auto",
+    });
+  };
+
   const focusBook = (idx: number) => {
     if (wasDraggedRef.current) return;
     const slots = trackRef.current?.children;
@@ -64,12 +81,19 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
     if (focusedRef.current === idx) return; // second click handled by the panel link
     const d = skipMotion() ? 0 : 1;
     if (focusedRef.current !== null) {
-      const prev = slots[focusedRef.current];
-      gsap.to(prev, { rotationY: 0, z: 0, y: 0, scale: 1, duration: 0.7 * d, ease: "power3.inOut" });
+      const prevIdx = focusedRef.current;
+      gsap.to(slots[prevIdx], {
+        rotationY: 0,
+        z: 0,
+        y: 0,
+        scale: 1,
+        duration: 0.7 * d,
+        ease: "power3.inOut",
+      });
     }
     gsap.to(slots[idx], {
       rotationY: TRACK_ANGLE,
-      z: 170,
+      z: 190,
       y: -26,
       scale: 1.06,
       duration: 0.85 * d,
@@ -176,11 +200,27 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
     const onResize = () => computeBounds();
     window.addEventListener("resize", onResize);
 
+    // hover pull-out (native listeners; pointerenter doesn't bubble)
+    const hoverCleanups = slots.map((slot, i) => {
+      const enter = (e: PointerEvent) => {
+        if (e.pointerType === "mouse" && e.buttons === 0) hoverBook(i, true);
+      };
+      const leave = (e: PointerEvent) => {
+        if (e.pointerType === "mouse") hoverBook(i, false);
+      };
+      slot.addEventListener("pointerenter", enter);
+      slot.addEventListener("pointerleave", leave);
+      return () => {
+        slot.removeEventListener("pointerenter", enter);
+        slot.removeEventListener("pointerleave", leave);
+      };
+    });
+
     // entrance: books cascade in along the shelf line
     if (!reduced) {
       gsap.fromTo(
         slots,
-        { x: 780, opacity: 0, rotationY: 24 },
+        { x: 780, opacity: 0, rotationY: -20 },
         {
           x: 0,
           opacity: 1,
@@ -189,7 +229,6 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
           ease: "power4.out",
           stagger: 0.06,
           delay: 0.25,
-          clearProps: "rotationY",
         },
       );
     }
@@ -199,6 +238,7 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
       shelf.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);
+      hoverCleanups.forEach((fn) => fn());
       gsap.killTweensOf([track, ...slots]);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

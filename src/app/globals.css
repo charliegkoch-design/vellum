@@ -166,8 +166,9 @@ body {
   --slot: 178px; /* horizontal spacing between shingled books */
   position: absolute;
   inset: 0;
-  perspective: 1500px;
-  perspective-origin: 50% 30%;
+  /* generous perspective keeps book sizes fairly even across the row */
+  perspective: 2200px;
+  perspective-origin: 50% 35%;
 }
 @media (max-width: 767px) {
   .hero-shelf {
@@ -180,13 +181,13 @@ body {
 
 .shelf-rot {
   position: absolute;
-  top: 37%;
+  top: 36%;
   left: -6%;
   right: -10%;
   bottom: 0;
   transform-style: preserve-3d;
-  /* row recedes to the right, like books leaning on an endless shelf */
-  transform: rotateX(3deg) rotateY(30deg);
+  /* the row leans like books on an endless shelf, receding to the right */
+  transform: rotateX(3deg) rotateY(28deg);
 }
 
 .shelf-track {
