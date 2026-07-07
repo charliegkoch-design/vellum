@@ -9,7 +9,8 @@
     "covers": "tsx scripts/fetch-covers.ts",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx src/db/seed.ts",
-    "setup": "npm run covers && npm run db:push && npm run db:seed"
+    "setup": "npm run covers && npm run db:push && npm run db:seed",
+    "vercel-build": "npm run covers && npm run db:push && npm run db:seed && next build"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
