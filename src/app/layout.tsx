@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,8 +33,10 @@ export default function RootLayout({
       className={`${inter.variable} ${instrument.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <div className="ambient-bg" aria-hidden="true" />
         <Nav />
         <div className="flex flex-col flex-1">{children}</div>
+        <Footer />
         <div className="vignette-overlay" aria-hidden="true" />
         <div className="grain-overlay" aria-hidden="true" />
       </body>

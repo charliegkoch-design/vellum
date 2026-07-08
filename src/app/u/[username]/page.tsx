@@ -31,7 +31,12 @@ export default async function ProfilePage(props: PageProps<"/u/[username]">) {
     <main className="page-enter mx-auto max-w-6xl px-6 pb-28 pt-32">
       {/* header */}
       <div className="flex flex-wrap items-center gap-6">
-        <Avatar name={person.displayName} color={person.avatarColor} size={88} />
+        <span
+          className="rounded-full p-1 ring-1 ring-line"
+          style={{ boxShadow: `0 0 50px -8px ${person.avatarColor}55` }}
+        >
+          <Avatar name={person.displayName} color={person.avatarColor} size={88} />
+        </span>
         <div className="min-w-0 flex-1">
           <h1 className="heading-display text-4xl md:text-5xl">{person.displayName}</h1>
           <p className="mt-1 text-cream-faint">@{person.username}</p>
@@ -51,23 +56,24 @@ export default async function ProfilePage(props: PageProps<"/u/[username]">) {
       </div>
 
       {/* stats */}
-      <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="card mt-10 grid grid-cols-2 divide-y divide-line sm:grid-cols-4 sm:divide-x sm:divide-y-0">
         {[
           [stats.rated, "books rated"],
           [stats.reviews, "reviews"],
           [stats.friends, "friends"],
           [stats.rated ? formatMean(stats.meanGiven) : "—", "avg rating given"],
         ].map(([n, label]) => (
-          <div key={label as string} className="card px-5 py-4">
-            <p className="heading-display text-4xl">{n}</p>
-            <p className="mt-1 text-xs uppercase tracking-widest text-cream-faint">{label}</p>
+          <div key={label as string} className="px-6 py-5">
+            <p className="heading-display text-4xl md:text-5xl">{n}</p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-cream-faint">{label}</p>
           </div>
         ))}
       </div>
 
       {/* top shelf */}
       <section className="mt-16">
-        <h2 className="heading-display text-3xl">
+        <p className="eyebrow mb-3">Best of the best</p>
+        <h2 className="heading-display text-3xl md:text-4xl">
           {isSelf ? "Your" : `${person.displayName.split(" ")[0]}’s`}{" "}
           <span className="italic text-cream-dim">top shelf</span>
         </h2>
@@ -94,7 +100,8 @@ export default async function ProfilePage(props: PageProps<"/u/[username]">) {
 
       {/* recent reviews */}
       <section className="mt-16">
-        <h2 className="heading-display text-3xl">Recent reviews</h2>
+        <p className="eyebrow mb-3">In their own words</p>
+        <h2 className="heading-display text-3xl md:text-4xl">Recent reviews</h2>
         <div className="mt-6 flex flex-col divide-y divide-line">
           {recentReviews.length === 0 && (
             <p className="py-4 text-sm italic text-cream-faint">No reviews yet.</p>

@@ -53,7 +53,8 @@ export default async function FriendsPage(props: PageProps<"/friends">) {
 
   return (
     <main className="page-enter mx-auto max-w-3xl px-6 pb-28 pt-32">
-      <h1 className="heading-display text-5xl md:text-6xl">
+      <p className="eyebrow mb-4">Your circle</p>
+      <h1 className="heading-display text-5xl leading-[1.05] md:text-7xl">
         Reading is <span className="italic text-cream-dim">better with company</span>
       </h1>
 

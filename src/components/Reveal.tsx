@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { skipMotion } from "@/lib/motion";
 
 export default function Reveal({
   children,
@@ -14,6 +15,10 @@ export default function Reveal({
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current!;
+    if (skipMotion()) {
+      el.classList.add("is-visible");
+      return;
+    }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

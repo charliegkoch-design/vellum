@@ -17,10 +17,11 @@ export default async function FeedPage() {
 
   return (
     <main className="page-enter mx-auto max-w-2xl px-6 pb-28 pt-32">
-      <h1 className="heading-display text-5xl md:text-6xl">
+      <p className="eyebrow mb-4">Fresh ink</p>
+      <h1 className="heading-display text-5xl leading-[1.05] md:text-7xl">
         Your <span className="italic text-cream-dim">margins</span>
       </h1>
-      <p className="mt-3 text-cream-dim">What your friends are reading, rating, and arguing about.</p>
+      <p className="mt-4 text-cream-dim">What your friends are reading, rating, and arguing about.</p>
 
       {friendIds.length === 0 ? (
         <div className="card mt-12 p-10 text-center">

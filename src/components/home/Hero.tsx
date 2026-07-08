@@ -53,6 +53,11 @@ export default function Hero({ sets, greeting }: { sets: ShelfSet[]; greeting?: 
 
   return (
     <section ref={rootRef} className="relative h-[100svh] overflow-hidden">
+      {/* soft light behind the wordmark */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[62%] bg-[radial-gradient(50%_55%_at_50%_34%,rgba(242,237,227,0.07),transparent_72%)]"
+      />
       {/* giant wordmark, behind the books */}
       <h1
         className="wordmark absolute inset-x-0 top-[13%] z-0 text-center md:top-[9%]"

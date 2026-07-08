@@ -31,7 +31,20 @@ export default async function BookPage(props: PageProps<"/books/[slug]">) {
   const reviews = getBookReviews(book.id);
 
   return (
-    <main className="page-enter mx-auto max-w-6xl px-6 pb-28 pt-32">
+    <main className="page-enter relative mx-auto max-w-6xl px-6 pb-28 pt-32">
+      {/* ambient wash from the cover art */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -inset-x-40 -top-24 -z-10 h-[70vh] opacity-[0.16]"
+        style={{
+          backgroundImage: `url(${book.coverUrl})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center 30%",
+          filter: "blur(90px) saturate(1.3)",
+          maskImage: "radial-gradient(65% 65% at 50% 22%, black, transparent 78%)",
+          WebkitMaskImage: "radial-gradient(65% 65% at 50% 22%, black, transparent 78%)",
+        }}
+      />
       <div className="grid gap-14 md:grid-cols-[360px_1fr] md:gap-20">
         {/* left: the physical book */}
         <div
@@ -64,17 +77,20 @@ export default async function BookPage(props: PageProps<"/books/[slug]">) {
           >
             {book.genre}
           </Link>
-          <h1 className="heading-display mt-5 text-5xl leading-[1.05] md:text-6xl">{book.title}</h1>
-          <p className="mt-3 text-lg text-cream-dim">
-            {book.author} · <span className="text-cream-faint">{book.year}</span>
+          <h1 className="heading-display mt-6 text-5xl leading-[1.03] md:text-7xl">{book.title}</h1>
+          <p className="mt-4 text-lg text-cream-dim">
+            <span className="heading-display italic">{book.author}</span>
+            <span className="mx-3 text-gold/70">✦</span>
+            <span className="text-cream-faint">{book.year}</span>
           </p>
           <p className="mt-6 max-w-xl leading-relaxed text-cream-dim">{book.description}</p>
 
           {/* rating summary */}
           <div className="mt-10 flex flex-wrap items-end gap-x-10 gap-y-6">
             <div>
-              <p className="heading-display text-7xl leading-none">
+              <p className="heading-display text-7xl leading-none md:text-8xl">
                 {votes ? formatMean(mean) : "—"}
+                <span className="ml-1 text-2xl text-cream-faint">/5</span>
               </p>
               <div className="mt-2 flex items-center gap-2">
                 <Stars value={mean} className="text-lg" />
@@ -89,7 +105,7 @@ export default async function BookPage(props: PageProps<"/books/[slug]">) {
                   <span className="w-3 text-right">{i + 1}</span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-cream/8">
                     <div
-                      className="hist-bar h-full rounded-full bg-gold/80"
+                      className="hist-bar h-full rounded-full"
                       style={
                         {
                           "--w": `${(n / maxBar) * 100}%`,
@@ -120,8 +136,9 @@ export default async function BookPage(props: PageProps<"/books/[slug]">) {
           </div>
 
           {/* reviews */}
-          <section className="mt-14">
-            <h2 className="heading-display text-3xl">
+          <section className="mt-16">
+            <p className="eyebrow mb-3">In the margins</p>
+            <h2 className="heading-display text-3xl md:text-4xl">
               Reviews <span className="text-cream-faint">({reviews.length})</span>
             </h2>
 

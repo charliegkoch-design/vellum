@@ -10,7 +10,9 @@ import {
 import { getCurrentUser } from "@/lib/session";
 import ActivityItem from "@/components/ActivityItem";
 import BookCard from "@/components/BookCard";
+import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
+import SectionHeading from "@/components/SectionHeading";
 import Hero, { type ShelfSet } from "@/components/home/Hero";
 import type { ShelfBook } from "@/components/home/Shelf3D";
 
@@ -47,15 +49,20 @@ export default async function Home() {
     <main>
       <Hero sets={sets} greeting={user ? `Hi ${user.displayName.split(" ")[0]}` : undefined} />
 
+      <Marquee />
+
       {/* trending this week */}
-      <section className="mx-auto max-w-7xl px-6 py-24">
+      <section className="mx-auto max-w-7xl px-6 py-24 md:py-28">
         <Reveal>
-          <div className="mb-10 flex items-end justify-between">
-            <h2 className="heading-display text-4xl md:text-5xl">
+          <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
+            <SectionHeading eyebrow="01 — Momentum">
               Trending <span className="italic text-cream-dim">this week</span>
-            </h2>
-            <Link href="/books" className="text-sm text-cream-faint hover:text-cream">
-              Browse all →
+            </SectionHeading>
+            <Link
+              href="/books"
+              className="nav-link text-sm text-cream-faint transition-colors hover:text-cream"
+            >
+              Browse the full library →
             </Link>
           </div>
         </Reveal>
@@ -70,12 +77,12 @@ export default async function Home() {
 
       {/* recent activity */}
       <section className="border-t border-line">
-        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-24 md:grid-cols-[1fr_1.2fr]">
+        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-24 md:grid-cols-[1fr_1.2fr] md:py-28">
           <Reveal>
-            <h2 className="heading-display text-4xl md:text-5xl">
+            <SectionHeading eyebrow="02 — Right now">
               The margins <span className="italic text-cream-dim">are talking</span>
-            </h2>
-            <p className="mt-4 max-w-sm leading-relaxed text-cream-dim">
+            </SectionHeading>
+            <p className="mt-5 max-w-sm leading-relaxed text-cream-dim">
               Every rating, review, and new friendship on Vellum, as it happens. Reading is
               better with company.
             </p>
@@ -95,25 +102,26 @@ export default async function Home() {
 
       {/* closing CTA */}
       {!user && (
-        <section className="border-t border-line">
-          <Reveal className="mx-auto max-w-7xl px-6 py-28 text-center">
-            <p className="heading-display text-5xl leading-tight md:text-7xl">
-              Shelve <span className="italic">your</span> life.
+        <section className="relative overflow-hidden border-t border-line">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_80%_at_50%_110%,rgba(226,88,42,0.12),transparent_70%)]"
+          />
+          <Reveal className="relative mx-auto max-w-7xl px-6 py-28 text-center md:py-36">
+            <p className="eyebrow justify-center before:hidden">Your shelf is waiting</p>
+            <p className="heading-display mt-5 text-5xl leading-[1.05] md:text-8xl">
+              Shelve <span className="italic text-ember">your</span> life.
             </p>
-            <p className="mx-auto mt-5 max-w-md text-cream-dim">
+            <p className="mx-auto mt-6 max-w-md text-cream-dim">
               Build your top ten, argue about it in the reviews, and steal your friends&apos;
               next read.
             </p>
-            <Link href="/join" className="pill-solid mt-9 inline-flex !px-8 !py-3.5">
+            <Link href="/join" className="pill-solid mt-10 inline-flex !px-9 !py-4 !text-base">
               Join Vellum — it&apos;s free
             </Link>
           </Reveal>
         </section>
       )}
-
-      <footer className="border-t border-line py-10 text-center text-xs text-cream-faint">
-        Vellum — rate, review &amp; shelve books with friends. Covers courtesy of Open Library.
-      </footer>
     </main>
   );
 }

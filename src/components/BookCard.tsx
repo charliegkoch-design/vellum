@@ -15,7 +15,7 @@ type Props = {
 export default function BookCard({ slug, title, author, coverUrl, mean, votes }: Props) {
   return (
     <Link href={`/books/${slug}`} className="group block">
-      <TiltCard className="overflow-hidden rounded-lg border border-line shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)] transition-shadow duration-300 group-hover:shadow-[0_26px_60px_-16px_rgba(0,0,0,0.95)]">
+      <TiltCard className="overflow-hidden rounded-lg border border-line transition-all duration-300 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)] group-hover:border-gold/40 group-hover:shadow-[0_26px_60px_-16px_rgba(0,0,0,0.95)]">
         <div className="relative aspect-[2/3] overflow-hidden bg-ink-raised">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

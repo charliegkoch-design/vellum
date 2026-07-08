@@ -23,18 +23,29 @@ export default async function DiscoverPage(props: PageProps<"/books">) {
 
   return (
     <main className="page-enter mx-auto max-w-7xl px-6 pb-28 pt-32">
-      <h1 className="heading-display text-5xl md:text-6xl">
+      <p className="eyebrow mb-4">The stacks</p>
+      <h1 className="heading-display text-5xl leading-[1.05] md:text-7xl">
         Discover <span className="italic text-cream-dim">your next obsession</span>
       </h1>
 
-      <form className="mt-9 max-w-md" action="/books">
+      <form className="relative mt-10 max-w-md" action="/books">
         {genre && <input type="hidden" name="genre" value={genre} />}
+        <svg
+          viewBox="0 0 24 24"
+          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cream-faint"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
         <input
           type="search"
           name="q"
           defaultValue={q}
           placeholder="Search titles or authors…"
-          className="input-dark"
+          className="input-dark !pl-11"
         />
       </form>
 
