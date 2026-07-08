@@ -47,12 +47,14 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
         z: 0,
         y: 0,
         scale: 1,
-        duration: 0.7 * d,
-        ease: "power3.inOut",
+        duration: 0.9 * d,
+        ease: "expo.inOut",
+        overwrite: "auto",
       });
       gsap.to(Array.from(slots).filter((_, i) => i !== idx), {
         opacity: 1,
-        duration: 0.5 * d,
+        duration: 0.6 * d,
+        ease: "power2.out",
       });
     }
     setFocused(null);
@@ -68,8 +70,8 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
     gsap.to(slot, {
       z: on ? HOVER_PULL : 0,
       y: on ? -10 : 0,
-      duration: 0.4 * d,
-      ease: on ? "power2.out" : "power2.inOut",
+      duration: (on ? 0.95 : 1.1) * d,
+      ease: "sine.inOut", // soft start, soft landing — no pop
       overwrite: "auto",
     });
   };
@@ -87,8 +89,9 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
         z: 0,
         y: 0,
         scale: 1,
-        duration: 0.7 * d,
-        ease: "power3.inOut",
+        duration: 0.9 * d,
+        ease: "expo.inOut",
+        overwrite: "auto",
       });
     }
     gsap.to(slots[idx], {
@@ -96,12 +99,13 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
       z: 190,
       y: -26,
       scale: 1.06,
-      duration: 0.85 * d,
-      ease: "power3.inOut",
+      duration: 1.05 * d,
+      ease: "expo.inOut",
+      overwrite: "auto",
     });
     gsap.to(
       Array.from(slots).filter((_, i) => i !== idx),
-      { opacity: 0.4, duration: 0.6 * d },
+      { opacity: 0.4, duration: 0.7 * d, ease: "power2.out" },
     );
     // slide the shelf so the focused book sits near center stage
     const shelf = shelfRef.current;
@@ -112,7 +116,7 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
         boundsRef.current.maxX,
         shelf.clientWidth * 0.34 - idx * slotWRef.current,
       );
-      gsap.to(track, { x: target, duration: 0.85 * d, ease: "power3.inOut", overwrite: "auto" });
+      gsap.to(track, { x: target, duration: 1.05 * d, ease: "expo.inOut", overwrite: "auto" });
       if (draggableRef.current) {
         gsap.set(draggableRef.current.target, { x: target });
         draggableRef.current.update();
@@ -140,12 +144,17 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
     };
     computeBounds();
 
+    // subtle lean while dragging, proportional to velocity
+    const leanTo = gsap.quickTo(track, "rotationY", { duration: 0.5, ease: "power2.out" });
+
     const proxy = document.createElement("div");
     const drag = Draggable.create(proxy, {
       type: "x",
       trigger: shelf,
       inertia: !reduced,
-      dragResistance: 0.06,
+      dragResistance: 0.05,
+      edgeResistance: 0.78,
+      bounds: { minX: bounds.minX, maxX: bounds.maxX },
       onPress() {
         wasDraggedRef.current = false;
         gsap.killTweensOf(track, "x");
@@ -156,10 +165,17 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
         clearFocus();
       },
       onDrag() {
-        setX(gsap.utils.clamp(bounds.minX, bounds.maxX, this.x));
+        setX(this.x);
+        leanTo(gsap.utils.clamp(-6, 6, -this.deltaX * 0.35));
+      },
+      onDragEnd() {
+        leanTo(0);
       },
       onThrowUpdate() {
-        setX(gsap.utils.clamp(bounds.minX, bounds.maxX, this.x));
+        setX(this.x);
+      },
+      onThrowComplete() {
+        leanTo(0);
       },
       snap: (v) => Math.round(gsap.utils.clamp(bounds.minX, bounds.maxX, v) / slotW) * slotW,
     })[0];
@@ -175,7 +191,7 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
         bounds.maxX,
         (gsap.getProperty(track, "x") as number) - e.deltaX * 1.4,
       );
-      gsap.to(track, { x: wheelX, duration: reduced ? 0 : 0.5, ease: "power3.out", overwrite: "auto" });
+      gsap.to(track, { x: wheelX, duration: reduced ? 0 : 0.8, ease: "power3.out", overwrite: "auto" });
       gsap.set(proxy, { x: wheelX });
       drag.update();
     };
@@ -191,13 +207,16 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
         bounds.maxX,
         cur + (e.key === "ArrowLeft" ? slotW : -slotW),
       );
-      gsap.to(track, { x: next, duration: reduced ? 0 : 0.6, ease: "power3.out", overwrite: "auto" });
+      gsap.to(track, { x: next, duration: reduced ? 0 : 0.75, ease: "power3.out", overwrite: "auto" });
       gsap.set(proxy, { x: next });
       drag.update();
     };
     window.addEventListener("keydown", onKey);
 
-    const onResize = () => computeBounds();
+    const onResize = () => {
+      computeBounds();
+      drag.applyBounds({ minX: bounds.minX, maxX: bounds.maxX });
+    };
     window.addEventListener("resize", onResize);
 
     // hover pull-out (native listeners; pointerenter doesn't bubble)
@@ -220,15 +239,15 @@ export default function Shelf3D({ books }: { books: ShelfBook[] }) {
     if (!reduced) {
       gsap.fromTo(
         slots,
-        { x: 780, opacity: 0, rotationY: -20 },
+        { x: 820, opacity: 0, rotationY: -16 },
         {
           x: 0,
           opacity: 1,
           rotationY: 0,
-          duration: 1.5,
-          ease: "power4.out",
-          stagger: 0.06,
-          delay: 0.25,
+          duration: 1.9,
+          ease: "expo.out",
+          stagger: 0.07,
+          delay: 0.2,
         },
       );
     }

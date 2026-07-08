@@ -213,6 +213,7 @@ textarea:focus-visible {
 .book-3d .face {
   position: absolute;
   inset: 0;
+  backface-visibility: hidden;
 }
 .book-cover-img {
   width: 100%;
