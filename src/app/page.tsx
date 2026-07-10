@@ -14,6 +14,7 @@ import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import Hero, { type ShelfSet } from "@/components/home/Hero";
+import IntroScroll from "@/components/home/IntroScroll";
 import type { ShelfBook } from "@/components/home/Shelf3D";
 
 function toShelfBook(b: BookWithStats & { myStars?: number }): ShelfBook {
@@ -47,6 +48,8 @@ export default async function Home() {
 
   return (
     <main>
+      <IntroScroll videoSrc="/intro/library.mp4" posterSrc="/intro/library.jpg" />
+
       <Hero sets={sets} greeting={user ? `Hi ${user.displayName.split(" ")[0]}` : undefined} />
 
       <Marquee />
