@@ -48,10 +48,7 @@ export default async function Home() {
 
   return (
     <main>
-      <IntroScroll
-        scenes={["/intro/act1-library.mp4", "/intro/act2-page.mp4", "/intro/act3-ascent.mp4"]}
-        posterSrc="/intro/library.jpg"
-      />
+      <IntroScroll filmSrc="/intro/intro-film.mp4" posterSrc="/intro/library.jpg" />
 
       <Hero sets={sets} greeting={user ? `Hi ${user.displayName.split(" ")[0]}` : undefined} />
 

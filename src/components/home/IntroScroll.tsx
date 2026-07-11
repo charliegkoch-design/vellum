@@ -5,47 +5,40 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { skipMotion } from "@/lib/motion";
 
-type Scene = { src: string; from: number; to: number };
-
 /**
- * Three-act cinematic scroll intro. Three Higgsfield-generated films are
- * scrubbed by scroll position and crossfaded like cuts in a title sequence,
- * inside letterbox bars with chaptered serif typography, ending on a fade
- * to ink that hands off to the 3D shelf hero below.
+ * Cinematic scroll intro. One continuous Higgsfield-generated film — three
+ * acts with crossfades baked in — is scrubbed by scroll position inside
+ * letterbox bars with chaptered serif typography, ending on a fade to ink
+ * that hands off to the 3D shelf hero below.
  */
 export default function IntroScroll({
-  scenes,
+  filmSrc,
   posterSrc,
 }: {
-  scenes: [string, string, string];
+  filmSrc: string;
   posterSrc: string;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useLayoutEffect(() => {
     if (skipMotion()) return; // static poster fallback, no pin
     gsap.registerPlugin(ScrollTrigger);
     const root = rootRef.current!;
-    const videos = videoRefs.current.filter(Boolean) as HTMLVideoElement[];
+    const video = videoRef.current!;
 
-    // each scene owns a slice of the overall scroll progress
-    const windows: Scene[] = [
-      { src: scenes[0], from: 0.0, to: 0.32 },
-      { src: scenes[1], from: 0.28, to: 0.6 },
-      { src: scenes[2], from: 0.54, to: 0.94 },
-    ];
+    // the film plays across the first 90% of the pin; the finale sinks to ink
+    const FILM_END = 0.9;
 
-    // scrub targets with an rAF lerp — direct currentTime writes stutter
-    const targets = [0, 0, 0];
+    // scrub target with an rAF lerp — direct currentTime writes stutter
+    let targetTime = 0;
     let rafId = 0;
     const tick = () => {
-      videos.forEach((v, i) => {
-        if (!v.duration) return;
-        const cur = v.currentTime;
-        const next = cur + (targets[i] - cur) * 0.14;
-        if (Math.abs(next - cur) > 0.001) v.currentTime = next;
-      });
+      if (video.duration) {
+        const cur = video.currentTime;
+        const next = cur + (targetTime - cur) * 0.14;
+        if (Math.abs(next - cur) > 0.001) video.currentTime = next;
+      }
       rafId = requestAnimationFrame(tick);
     };
     rafId = requestAnimationFrame(tick);
@@ -59,13 +52,9 @@ export default function IntroScroll({
           pin: true,
           scrub: 0.6,
           onUpdate(self) {
-            const p = self.progress;
-            windows.forEach((w, i) => {
-              const v = videos[i];
-              if (!v?.duration) return;
-              const local = gsap.utils.clamp(0, 1, (p - w.from) / (w.to - w.from));
-              targets[i] = local * (v.duration - 0.05);
-            });
+            if (!video.duration) return;
+            const local = gsap.utils.clamp(0, 1, self.progress / FILM_END);
+            targetTime = local * (video.duration - 0.05);
           },
         },
       });
@@ -78,31 +67,20 @@ export default function IntroScroll({
         .to(".intro-title", { opacity: 0, y: -70, duration: 0.1 }, 0.23)
         .fromTo(".cine-credit", { opacity: 0 }, { opacity: 1, duration: 0.05 }, 0.08);
 
-      // ---- cut to act II: the page turn ----
-      tl.fromTo(
-        ".scene-1",
-        { opacity: 0, scale: 1.08 },
-        { opacity: 1, scale: 1, duration: 0.07, ease: "power1.inOut" },
-        0.28,
-      )
-        .to(".cine-chapter", { textContent: "II", duration: 0 }, 0.55)
-        .fromTo(".intro-line-1", { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.09 }, 0.36)
-        .to(".intro-line-1", { opacity: 0, y: -70, duration: 0.09 }, 0.5);
+      // ---- act II: the page turn (crossfade lives in the film itself) ----
+      tl.to(".cine-chapter", { textContent: "II", duration: 0 }, 0.28)
+        .fromTo(".intro-line-1", { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.09 }, 0.34)
+        .to(".intro-line-1", { opacity: 0, y: -70, duration: 0.09 }, 0.49);
 
-      // ---- cut to act III: the ascent ----
-      tl.fromTo(
-        ".scene-2",
-        { opacity: 0, scale: 1.08 },
-        { opacity: 1, scale: 1, duration: 0.07, ease: "power1.inOut" },
-        0.54,
-      )
+      // ---- act III: the ascent ----
+      tl.to(".cine-chapter", { textContent: "III", duration: 0 }, 0.56)
         .fromTo(".intro-line-2", { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.09 }, 0.62)
         .to(".intro-line-2", { opacity: 0, y: -70, duration: 0.09 }, 0.76);
 
-      // ---- finale: the films sink into ink, bars open ----
-      tl.to(".cine-stage", { opacity: 0.1, scale: 1.05, filter: "blur(8px)", duration: 0.14 }, 0.82)
-        .fromTo(".intro-line-3", { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.09 }, 0.84)
-        .to(".intro-line-3 .intro-hint", { opacity: 1, duration: 0.06 }, 0.92)
+      // ---- finale: the film sinks into ink, bars open ----
+      tl.to(".cine-stage", { opacity: 0.1, scale: 1.05, filter: "blur(8px)", duration: 0.14 }, 0.84)
+        .fromTo(".intro-line-3", { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.09 }, 0.86)
+        .to(".intro-line-3 .intro-hint", { opacity: 1, duration: 0.06 }, 0.93)
         .to(".cine-bar-top", { yPercent: -100, duration: 0.06 }, 0.94)
         .to(".cine-bar-bottom", { yPercent: 100, duration: 0.06 }, 0.94)
         .to(".cine-credit", { opacity: 0, duration: 0.04 }, 0.94);
@@ -119,29 +97,21 @@ export default function IntroScroll({
       cancelAnimationFrame(rafId);
       ctx.revert();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div ref={rootRef} className="relative h-[100svh] overflow-hidden bg-ink">
-      {/* stacked films */}
+      {/* the film */}
       <div className="cine-stage absolute inset-0">
-        {scenes.map((src, i) => (
-          <video
-            key={src}
-            ref={(el) => {
-              videoRefs.current[i] = el;
-            }}
-            src={src}
-            poster={i === 0 ? posterSrc : undefined}
-            muted
-            playsInline
-            preload="auto"
-            className={`absolute inset-0 h-full w-full object-cover ${
-              i > 0 ? `scene-${i} opacity-0` : ""
-            }`}
-          />
-        ))}
+        <video
+          ref={videoRef}
+          src={filmSrc}
+          poster={posterSrc}
+          muted
+          playsInline
+          preload="auto"
+          className="h-full w-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-transparent to-ink" />
         <div className="absolute inset-0 bg-[radial-gradient(90%_80%_at_50%_45%,transparent_55%,rgba(0,0,0,0.55)_100%)]" />
       </div>
